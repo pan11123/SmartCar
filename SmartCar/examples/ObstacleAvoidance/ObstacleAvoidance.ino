@@ -36,7 +36,7 @@ boolean isPathClear(float minSafeDistance);
 void setup() {
   // 初始化串口
   Serial.begin(9600);
-  Serial.println("SmartCar超声波避障示例(带精确90度转弯)");
+  Serial.println("SmartCar超声波避障示例");
   
   // 设置超声波传感器
   car.setupUltrasonicSensor(TRIG_PIN, ECHO_PIN);
@@ -70,8 +70,6 @@ void avoidObstacleWithPreciseTurning(float safeDistance) {
   
   // 检测前方距离
   float frontDistance = car.detectFront();
-  Serial.print("前方距离: ");
-  Serial.println(frontDistance);
   
   // 判断是否需要避障
   if (frontDistance < safeDistance) {
@@ -82,12 +80,8 @@ void avoidObstacleWithPreciseTurning(float safeDistance) {
     
     // 检测左右两侧距离
     float leftDistance = car.detectLeft();
-    Serial.print("左侧距离: ");
-    Serial.println(leftDistance);
     
     float rightDistance = car.detectRight();
-    Serial.print("右侧距离: ");
-    Serial.println(rightDistance);
     
     // 将舵机转回前方
     car.detectFront();
@@ -95,53 +89,92 @@ void avoidObstacleWithPreciseTurning(float safeDistance) {
     // 根据左右距离决定转向
     if (leftDistance < safeDistance && rightDistance < safeDistance) {
       // 左右两侧都有障碍物，掉头(180度)
-      Serial.println("左右有障碍，掉头");
       car.spinLeft(SPIN_TIME_90_DEGREE_RIGHT * 2);
       car.stop(1);
     } else if (leftDistance > rightDistance) {
       // 左侧空间更大，向左转90度
-      Serial.println("左侧空间更大，向左转90度");
       car.spinLeft(SPIN_TIME_90_DEGREE_RIGHT);
       car.stop(1); // 确保停止并稳定姿态
-
-      // 定义侧向绕行的时间 (单位: 100ms, 例如 20 代表 2秒) - 需要根据实际情况校准
-      const int SIDEWAYS_MOVE_DURATION = 10; 
-      Serial.print("向当前方向（左侧）前进 ");
-      Serial.print(SIDEWAYS_MOVE_DURATION * 100);
-      Serial.println(" ms 以绕过障碍物");
-      car.forward(SIDEWAYS_MOVE_DURATION); // 向前行驶固定时间后应自动停止
-      car.stop(1); // 确保停止并稳定姿态
-
-      // 再次向右转90度，以恢复原始行驶方向
-      Serial.println("向右转90度，恢复原行驶方向");
-      car.spinRight(4);
-      car.stop(1); // 确保停止并稳定姿态
-
-      // 将舵机转回前方并继续前进
-      Serial.println("调整舵机朝前，继续前进");
+      
+      // 初始化绕行状态
+      bool obstacleCleared = false;  // 是否已绕过障碍物
+      int moveCount = 0;  // 移动计数器
+      const int MAX_MOVE_COUNT = 40;  // 最大移动次数（安全措施）
+      const int MIN_MOVE_COUNT = 1;   // 最小移动次数（确保至少前进一小段距离）
+      
+      // 前进并持续检测右侧障碍物
+      while (!obstacleCleared && moveCount < MAX_MOVE_COUNT) {
+        // 前进一小步
+        car.forward(5);
+        
+        // 检测右侧（原障碍物方向）距离
+        float rightSideDistance = car.detectRight();
+        
+        // 计数器增加
+        moveCount++;
+        
+        // 判断是否已经绕过障碍物
+        // 条件：已经前进了最小距离 + 右侧距离变大（说明已经绕过障碍物边缘）
+        if (moveCount > MIN_MOVE_COUNT && rightSideDistance > safeDistance * 1.5) {
+          obstacleCleared = true;
+        }
+        
+        // 每次检测后短暂延时
+        delay(100);
+      }
+      
+      car.stop(1); // 停车稳定
+      
+      if (obstacleCleared) {
+        // 已绕过障碍物，转回原来方向
+        car.spinRight(SPIN_TIME_90_DEGREE_LEFT);
+        car.stop(1);
+      }
       car.detectFront(); 
       car.forward(0); // 持续前进
     } else {
       // 右侧空间更大（或与左侧相等，则默认向右），向右转90度
-      Serial.println("右侧空间更大或与左侧相等，向右转90度");
       car.spinRight(SPIN_TIME_90_DEGREE_LEFT);
       car.stop(1); // 确保停止并稳定姿态
 
-      // 定义侧向绕行的时间 (单位: 100ms, 例如 20 代表 2秒) - 需要根据实际情况校准
-      const int SIDEWAYS_MOVE_DURATION = 10;
-      Serial.print("向当前方向（右侧）前进 ");
-      Serial.print(SIDEWAYS_MOVE_DURATION * 100);
-      Serial.println(" ms 以绕过障碍物");
-      car.forward(SIDEWAYS_MOVE_DURATION); // 向前行驶固定时间后应自动停止
-      car.stop(1); // 确保停止并稳定姿态
-
-      // 再次向左转90度，以恢复原始行驶方向
-      Serial.println("向左转90度，恢复原行驶方向");
-      car.spinLeft(SPIN_TIME_90_DEGREE_RIGHT);
-      car.stop(1); // 确保停止并稳定姿态
+      // 使用动态检测方式绕过障碍物
+      
+      // 初始化绕行状态
+      bool obstacleCleared = false;  // 是否已绕过障碍物
+      int moveCount = 0;  // 移动计数器
+      const int MAX_MOVE_COUNT = 40;  // 最大移动次数（安全措施）
+      const int MIN_MOVE_COUNT = 5;   // 最小移动次数（确保至少前进一小段距离）
+      
+      // 前进并持续检测左侧障碍物
+      while (!obstacleCleared && moveCount < MAX_MOVE_COUNT) {
+        // 前进一小步
+        car.forward(5);
+        
+        // 检测左侧（原障碍物方向）距离
+        float leftSideDistance = car.detectLeft();
+        
+        // 计数器增加
+        moveCount++;
+        
+        // 判断是否已经绕过障碍物
+        // 条件：已经前进了最小距离 + 左侧距离变大（说明已经绕过障碍物边缘）
+        if (moveCount > MIN_MOVE_COUNT && leftSideDistance > safeDistance * 1.5) {
+          obstacleCleared = true;
+        }
+        
+        // 每次检测后短暂延时
+        delay(100);
+      }
+      
+      car.stop(1); // 停车稳定
+      
+      if (obstacleCleared) {
+        // 已绕过障碍物，转回原来方向
+        car.spinLeft(SPIN_TIME_90_DEGREE_RIGHT);
+        car.stop(1);
+      }
       
       // 将舵机转回前方并继续前进
-      Serial.println("调整舵机朝前，继续前进");
       car.detectFront();
       car.forward(0); // 持续前进
     }

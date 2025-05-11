@@ -149,6 +149,16 @@ public:
     void avoidObstacleWithServo(float safeDistance = 32.0);
     
     /**
+     * @brief 使用舵机进行动态避障
+     * @param safeDistance 安全距离，单位为厘米
+     * @param spinTimeLeftDegree90 左转90度所需时间(单位:100ms)
+     * @param spinTimeRightDegree90 右转90度所需时间(单位:100ms)
+     */
+    void dynamicAvoidObstacle(float safeDistance = 30.0, 
+                             float spinTimeLeftDegree90 = 3.5, 
+                             float spinTimeRightDegree90 = 3.5);
+    
+    /**
      * @brief 检测前方距离
      * @return 前方距离(厘米)
      */
@@ -167,6 +177,24 @@ public:
     float detectRight();
     
 private:
+    /**
+     * @brief 向左动态绕障
+     * @param safeDistance 安全距离，单位为厘米
+     * @param spinTimeLeftDegree90 左转90度所需时间(单位:100ms)
+     * @param spinTimeRightDegree90 右转90度所需时间(单位:100ms)
+     * @return 是否成功绕过障碍物
+     */
+    bool dynamicAvoidLeft(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90);
+    
+    /**
+     * @brief 向右动态绕障
+     * @param safeDistance 安全距离，单位为厘米
+     * @param spinTimeLeftDegree90 左转90度所需时间(单位:100ms)
+     * @param spinTimeRightDegree90 右转90度所需时间(单位:100ms)
+     * @return 是否成功绕过障碍物
+     */
+    bool dynamicAvoidRight(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90);
+    
     Motor* _motor;                      ///< 电机控制对象
     UltrasonicSensor* _ultrasonicSensor;  ///< 超声波传感器对象
     InfraredSensor* _infraredSensor;     ///< 红外传感器对象
