@@ -12,6 +12,7 @@
 #include "UltrasonicSensor.h"
 #include "InfraredSensor.h"
 #include "Servo.h"
+#include "TrackingSensor.h"
 
 /**
  * @class SmartCar
@@ -48,6 +49,13 @@ public:
      * @param rightPin 右侧红外传感器引脚
      */
     void setupInfraredSensor(uint8_t leftPin, uint8_t rightPin);
+    
+    /**
+     * @brief 设置循迹传感器
+     * @param leftPin 左侧循迹传感器引脚
+     * @param rightPin 右侧循迹传感器引脚
+     */
+    void setupTrackingSensors(uint8_t leftPin, uint8_t rightPin);
     
     /**
      * @brief 设置电机速度
@@ -111,6 +119,18 @@ public:
     int trackLine();
     
     /**
+     * @brief 读取左侧循迹传感器状态
+     * @return 传感器读数，LOW表示检测到黑线，HIGH表示检测到白色
+     */
+    bool readLeftTrackSensor();
+    
+    /**
+     * @brief 读取右侧循迹传感器状态
+     * @return 传感器读数，LOW表示检测到黑线，HIGH表示检测到白色
+     */
+    bool readRightTrackSensor();
+    
+    /**
      * @brief 避障行驶
      * @param safeDistance 安全距离，单位为厘米
      */
@@ -121,8 +141,6 @@ public:
      * @param servoPin 舵机控制引脚
      */
     void setupServo(uint8_t servoPin);
-    
-
     
     /**
      * @brief 使用舵机进行多方向避障
@@ -149,14 +167,16 @@ public:
     float detectRight();
     
 private:
-    Motor* _motor;                     ///< 电机控制对象
-    UltrasonicSensor* _ultrasonicSensor; ///< 超声波传感器对象
-    InfraredSensor* _infraredSensor;    ///< 红外传感器对象
-    Servo* _servo;                     ///< 舵机控制对象
+    Motor* _motor;                      ///< 电机控制对象
+    UltrasonicSensor* _ultrasonicSensor;  ///< 超声波传感器对象
+    InfraredSensor* _infraredSensor;     ///< 红外传感器对象
+    TrackingSensor* _trackingSensor;     ///< 循迹传感器对象
+    Servo* _servo;                      ///< 舵机控制对象
     
-    bool _hasUltrasonicSensor;         ///< 是否配置了超声波传感器
-    bool _hasInfraredSensor;           ///< 是否配置了红外传感器
-    bool _hasServo;                    ///< 是否配置了舵机
+    bool _hasUltrasonicSensor;          ///< 是否配置了超声波传感器
+    bool _hasInfraredSensor;            ///< 是否配置了红外传感器
+    bool _hasTrackingSensor;            ///< 是否配置了循迹传感器
+    bool _hasServo;                     ///< 是否配置了舵机
 };
 
 #endif // SMART_CAR_H

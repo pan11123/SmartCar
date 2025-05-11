@@ -22,10 +22,9 @@ const int SERVO_PIN = 2;          // 舵机控制引脚
 // 定义安全距离(厘米)
 const float SAFE_DISTANCE = 30.0;
 
-// 左轮90度转弯相关参数
-const int SPIN_TIME_90_DEGREE_LEFT = 3;  // 旋转90度所需时间(单位:100ms)
-// 右轮90度转弯相关参数
-const int SPIN_TIME_90_DEGREE_RIGHT = 3.5;
+// 90度转弯相关参数
+const int SPIN_TIME_90_DEGREE = 3.25;  // 旋转90度所需时间(单位:100ms)
+
 // 创建SmartCar对象
 SmartCar car(LEFT_MOTOR_GO, LEFT_MOTOR_BACK, RIGHT_MOTOR_GO, RIGHT_MOTOR_BACK);
 
@@ -47,13 +46,30 @@ void setup() {
   car.begin();
   
   // 设置电机速度
-  car.setSpeed(180, 145);
+  car.setSpeed(200, 163);
 }
 
 void loop() {
-  // 使用精确转弯的避障功能
-  avoidObstacleWithPreciseTurning(SAFE_DISTANCE);
+  car.forward(0);
+
+  float frontDistance = car.detectFront();
+  if (frontDistance < SAFE_DISTANCE) {
+    car.stop(1);
+    car.backward(2);
+    car.stop(1);
+  } else {
+     // 检测左右两侧距离
+    float leftDistance = car.detectLeft();
+    float rightDistance = car.detectRight();
   
+    car.spinLeft(SPIN_TIME_90_DEGREE);
+    car.forward(8);
+    car.spinRight(SPIN_TIME_90_DEGREE);
+    delay(200);
+  }
+  
+
+
   // 短暂延时
   delay(100);
 }
@@ -96,54 +112,51 @@ void avoidObstacleWithPreciseTurning(float safeDistance) {
     if (leftDistance < safeDistance && rightDistance < safeDistance) {
       // 左右两侧都有障碍物，掉头(180度)
       Serial.println("左右有障碍，掉头");
-      car.spinLeft(SPIN_TIME_90_DEGREE_RIGHT * 2);
+      car.spinLeft(SPIN_TIME_90_DEGREE * 2);
       car.stop(1);
     } else if (leftDistance > rightDistance) {
       // 左侧空间更大，向左转90度
-      Serial.println("左侧空间更大，向左转90度");
-      car.spinLeft(SPIN_TIME_90_DEGREE_RIGHT);
-      car.stop(1); // 确保停止并稳定姿态
-
-      // 定义侧向绕行的时间 (单位: 100ms, 例如 20 代表 2秒) - 需要根据实际情况校准
-      const int SIDEWAYS_MOVE_DURATION = 10; 
-      Serial.print("向当前方向（左侧）前进 ");
-      Serial.print(SIDEWAYS_MOVE_DURATION * 100);
-      Serial.println(" ms 以绕过障碍物");
-      car.forward(SIDEWAYS_MOVE_DURATION); // 向前行驶固定时间后应自动停止
-      car.stop(1); // 确保停止并稳定姿态
-
-      // 再次向右转90度，以恢复原始行驶方向
-      Serial.println("向右转90度，恢复原行驶方向");
-      car.spinRight(4);
-      car.stop(1); // 确保停止并稳定姿态
-
-      // 将舵机转回前方并继续前进
-      Serial.println("调整舵机朝前，继续前进");
-      car.detectFront(); 
-      car.forward(0); // 持续前进
+      Serial.println("向左转90度");
+      car.spinLeft(SPIN_TIME_90_DEGREE);
+      car.stop(1);
+      // 左转后前进
+      car.forward(0);
+      // 左转后检测右侧距离
+      float newRightDistance = car.detectRight();
+      if (newRightDistance < safeDistance) {
+        // 右侧有障碍物，继续前进
+        car.forward(20);
+      } else {
+        // 右侧无障碍物，回到原来前进方向
+        Serial.println("右侧无障碍物，右转");
+        car.spinRight(SPIN_TIME_90_DEGREE);
+        delay(SPIN_TIME_90_DEGREE * 100);  // 等待转向完成
+        car.stop(1);
+        car.detectFront();  // 将超声波转回前方
+        car.forward(0);  // 前进
+      }
     } else {
-      // 右侧空间更大（或与左侧相等，则默认向右），向右转90度
-      Serial.println("右侧空间更大或与左侧相等，向右转90度");
-      car.spinRight(SPIN_TIME_90_DEGREE_LEFT);
-      car.stop(1); // 确保停止并稳定姿态
+      // 右侧空间更大，向右转90度
+      Serial.println("向右转90度");
+      car.spinRight(SPIN_TIME_90_DEGREE);
+      car.stop(1);
 
-      // 定义侧向绕行的时间 (单位: 100ms, 例如 20 代表 2秒) - 需要根据实际情况校准
-      const int SIDEWAYS_MOVE_DURATION = 10;
-      Serial.print("向当前方向（右侧）前进 ");
-      Serial.print(SIDEWAYS_MOVE_DURATION * 100);
-      Serial.println(" ms 以绕过障碍物");
-      car.forward(SIDEWAYS_MOVE_DURATION); // 向前行驶固定时间后应自动停止
-      car.stop(1); // 确保停止并稳定姿态
-
-      // 再次向左转90度，以恢复原始行驶方向
-      Serial.println("向左转90度，恢复原行驶方向");
-      car.spinLeft(SPIN_TIME_90_DEGREE_RIGHT);
-      car.stop(1); // 确保停止并稳定姿态
-      
-      // 将舵机转回前方并继续前进
-      Serial.println("调整舵机朝前，继续前进");
-      car.detectFront();
-      car.forward(0); // 持续前进
+      // 右转后前进
+      car.forward(0);
+      // 右转后检测左侧距离
+      float newLeftDistance = car.detectLeft();
+      if (newLeftDistance < safeDistance) {
+        // 左侧有障碍物，继续前进
+        car.forward(20);
+      } else {
+        Serial.println("左侧无障碍物，左转");
+        // 左侧无障碍物，回到原来前进方向
+        car.spinLeft(SPIN_TIME_90_DEGREE);
+        delay(SPIN_TIME_90_DEGREE * 100);  // 等待转向完成
+        car.stop(1);
+        car.detectFront();  // 将超声波转回前方
+        car.forward(0);  // 前进
+      }
     }
   } else {
     // 前方无障碍物，继续前进
