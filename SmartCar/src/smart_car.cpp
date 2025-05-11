@@ -7,7 +7,7 @@
 
 SmartCar::SmartCar(uint8_t leftMotorGo, uint8_t leftMotorBack, 
                    uint8_t rightMotorGo, uint8_t rightMotorBack)
-    : m_hasUltrasonicSensor(false), m_hasInfraredSensor(false), m_hasTrackingSensor(false), m_hasServo(false) {
+    : m_hasUltrasonicSensor(false), m_hasInfraredSensor(false), m_hasServo(false) {
     // 创建电机控制对象
     m_motor = new Motor(leftMotorGo, leftMotorBack, rightMotorGo, rightMotorBack);
 }
@@ -26,11 +26,6 @@ void SmartCar::Begin() {
         m_infraredSensor->Begin();
     }
     
-    // 如果配置了循迹传感器，则初始化
-    if (m_hasTrackingSensor) {
-        // 循迹传感器已在SetupTrackingSensors中初始化
-    }
-    
     // 如果配置了舵机，则初始化
     if (m_hasServo) {
         m_servo->Begin();
@@ -47,13 +42,6 @@ void SmartCar::SetupInfraredSensor(uint8_t leftPin, uint8_t rightPin) {
     // 创建红外传感器对象
     m_infraredSensor = new InfraredSensor(leftPin, rightPin);
     m_hasInfraredSensor = true;
-}
-
-void SmartCar::SetupTrackingSensors(uint8_t leftPin, uint8_t rightPin) {
-    // 创建循迹传感器对象
-    m_trackingSensor = new TrackingSensor();
-    m_trackingSensor->Begin(leftPin, rightPin);
-    m_hasTrackingSensor = true;
 }
 
 void SmartCar::SetSpeed(uint8_t leftSpeed, uint8_t rightSpeed) {
@@ -107,77 +95,49 @@ float SmartCar::GetDistance() {
 }
 
 bool SmartCar::ReadLeftTrackSensor() {
-    // 如果没有配置循迹传感器，则返回HIGH（表示未检测到黑线）
-    if (!m_hasTrackingSensor) {
+    // 如果没有配置红外传感器，则返回HIGH（表示未检测到黑线）
+    if (!m_hasInfraredSensor) {
         return HIGH;
     }
     
-    // 读取左侧循迹传感器状态
-    return m_trackingSensor->ReadLeft();
+    // 读取左侧红外传感器状态
+    return m_infraredSensor->GetLeftSensorStatus();
 }
 
 bool SmartCar::ReadRightTrackSensor() {
-    // 如果没有配置循迹传感器，则返回HIGH（表示未检测到黑线）
-    if (!m_hasTrackingSensor) {
+    // 如果没有配置红外传感器，则返回HIGH（表示未检测到黑线）
+    if (!m_hasInfraredSensor) {
         return HIGH;
     }
     
-    // 读取右侧循迹传感器状态
-    return m_trackingSensor->ReadRight();
+    // 读取右侧红外传感器状态
+    return m_infraredSensor->GetRightSensorStatus();
 }
 
 int SmartCar::TrackLine() {
-    // 先检查是否使用专用循迹传感器
-    if (m_hasTrackingSensor) {
-        // 读取循迹传感器状态
-        bool leftSensor = ReadLeftTrackSensor();
-        bool rightSensor = ReadRightTrackSensor();
-        
-        // 根据传感器状态进行控制
-        // 有信号为LOW (黑线), 无信号为HIGH (白色区域)
-        if (leftSensor == LOW && rightSensor == LOW) {
-            // 两个传感器都在黑线上，直行
-            Forward(0);
-            return 0;
-        } else if (leftSensor == HIGH && rightSensor == LOW) {
-            // 左传感器在白色区域，右传感器在黑线上，车偏右，需向左转
-            TurnLeft(0);
-            return 1;
-        } else if (leftSensor == LOW && rightSensor == HIGH) {
-            // 左传感器在黑线上，右传感器在白色区域，车偏左，需向右转
-            TurnRight(0);
-            return 2;
-        } else {
-            // 两个传感器都在白色区域，停止
-            Stop(0);
-            return 3;
-        }
+    // 如果没有配置红外传感器，则返回-1
+    if (!m_hasInfraredSensor) {
+        return -1;
     }
     
-    // 如果没有配置专用循迹传感器，则尝试使用红外传感器
-    if (m_hasInfraredSensor) {
-        // 根据红外传感器状态执行循迹
-        if (m_infraredSensor->IsBothOnLine()) {
-            // 两侧都检测到黑线，直行
-            Forward(0);
-            return 0;
-        } else if (m_infraredSensor->IsLeftOnLine()) {
-            // 左侧检测到黑线，右侧检测到白色区域，向右偏离，需要左转
-            TurnLeft(0);
-            return 1;
-        } else if (m_infraredSensor->IsRightOnLine()) {
-            // 右侧检测到黑线，左侧检测到白色区域，向左偏离，需要右转
-            TurnRight(0);
-            return 2;
-        } else {
-            // 两侧都检测到白色区域，停止
-            Stop(0);
-            return 3;
-        }
+    // 根据红外传感器状态执行循迹
+    if (m_infraredSensor->IsBothOnLine()) {
+        // 两侧都检测到黑线，直行
+        Forward(0);
+        return 0;
+    } else if (m_infraredSensor->IsLeftOnLine()) {
+        // 左侧检测到黑线，右侧检测到白色区域，向右偏离，需要左转
+        TurnLeft(0);
+        return 1;
+    } else if (m_infraredSensor->IsRightOnLine()) {
+        // 右侧检测到黑线，左侧检测到白色区域，向左偏离，需要右转
+        TurnRight(0);
+        return 2;
+    } else {
+        // 两侧都检测到白色区域，停止
+        Stop(0);
+        return 3;
     }
-    
-    // 如果未配置任何传感器，则返回-1
-    return -1;
 }
 
 void SmartCar::SetupServo(uint8_t servoPin) {

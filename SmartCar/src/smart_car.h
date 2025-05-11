@@ -12,7 +12,6 @@
 #include "ultrasonic_sensor.h"
 #include "infrared_sensor.h"
 #include "servo.h"
-#include "tracking_sensor.h"
 
 // 运动状态枚举
 enum MoveState {
@@ -58,13 +57,6 @@ public:
      * @param rightPin 右侧红外传感器引脚
      */
     void SetupInfraredSensor(uint8_t leftPin, uint8_t rightPin);
-    
-    /**
-     * @brief 设置循迹传感器
-     * @param leftPin 左侧循迹传感器引脚
-     * @param rightPin 右侧循迹传感器引脚
-     */
-    void SetupTrackingSensors(uint8_t leftPin, uint8_t rightPin);
     
     /**
      * @brief 设置电机速度
@@ -123,18 +115,18 @@ public:
     
     /**
      * @brief 执行黑线循迹
-     * @return 返回循迹状态，0表示直行，1表示左转，2表示右转，3表示停止
+     * @return 返回循迹状态，0表示直行，1表示左转，2表示右转，3表示停止，-1表示未配置传感器
      */
     int TrackLine();
     
     /**
-     * @brief 读取左侧循迹传感器状态
+     * @brief 读取左侧红外传感器状态（用于循迹）
      * @return 传感器读数，LOW表示检测到黑线，HIGH表示检测到白色
      */
     bool ReadLeftTrackSensor();
     
     /**
-     * @brief 读取右侧循迹传感器状态
+     * @brief 读取右侧红外传感器状态（用于循迹）
      * @return 传感器读数，LOW表示检测到黑线，HIGH表示检测到白色
      */
     bool ReadRightTrackSensor();
@@ -281,16 +273,14 @@ private:
      */
     int CalculateFollowSpeed(float error, int minSpeed, int maxSpeed);
     
-    Motor* m_motor;                      ///< 电机控制对象
-    UltrasonicSensor* m_ultrasonicSensor;  ///< 超声波传感器对象
-    InfraredSensor* m_infraredSensor;     ///< 红外传感器对象
-    TrackingSensor* m_trackingSensor;     ///< 循迹传感器对象
-    Servo* m_servo;                      ///< 舵机控制对象
+    Motor* m_motor;                  ///< 电机控制对象
+    UltrasonicSensor* m_ultrasonicSensor;   ///< 超声波传感器对象
+    InfraredSensor* m_infraredSensor;      ///< 红外传感器对象
+    Servo* m_servo;                  ///< 舵机控制对象
     
-    bool m_hasUltrasonicSensor;          ///< 是否配置了超声波传感器
-    bool m_hasInfraredSensor;            ///< 是否配置了红外传感器
-    bool m_hasTrackingSensor;            ///< 是否配置了循迹传感器
-    bool m_hasServo;                     ///< 是否配置了舵机
+    bool m_hasUltrasonicSensor;      ///< 是否配置了超声波传感器
+    bool m_hasInfraredSensor;        ///< 是否配置了红外传感器
+    bool m_hasServo;                 ///< 是否配置了舵机
     
     MoveState m_currentState;            ///< 当前运动状态
 };

@@ -28,9 +28,9 @@
 ```
 SmartCar/
 ├── examples/                 # 示例代码目录
-│   ├── BasicMovement/       # 基本运动示例
-│   ├── LineTracking/        # 黑线循迹示例
-│   └── ObstacleAvoidance/   # 超声波避障示例
+│   ├── basic_movement/       # 基本运动示例
+│   ├── line_tracking/        # 黑线循迹示例
+│   └── obstacle_avoidance/   # 超声波避障示例
 ├── src/                     # 库源代码目录
 │   ├── motor.h              # 电机控制类头文件
 │   ├── motor.cpp            # 电机控制类实现文件
@@ -40,8 +40,6 @@ SmartCar/
 │   ├── infrared_sensor.cpp   # 红外传感器类实现文件
 │   ├── servo.h              # 舵机控制类头文件
 │   ├── servo.cpp            # 舵机控制类实现文件
-│   ├── tracking_sensor.h     # 循迹传感器类头文件
-│   ├── tracking_sensor.cpp   # 循迹传感器类实现文件
 │   ├── smart_car.h           # 智能小车主类头文件
 │   └── smart_car.cpp         # 智能小车主类实现文件
 ├── keywords.txt             # 关键字定义文件
@@ -60,7 +58,7 @@ SmartCar/
 ### 基本使用
 
 ```cpp
-#include <SmartCar.h>
+#include <smart_car.h>
 
 // 定义引脚
 const int LEFT_MOTOR_GO = 5;      // 左电机前进引脚
@@ -128,11 +126,15 @@ int track_status = car.TrackLine();
 
 红外传感器类，负责红外传感器的控制和黑线循迹。
 
+### Servo 类
+
+舵机控制类，负责舵机的控制，用于多方向避障功能。
+
 ## 示例说明
 
-- **BasicMovement**：演示基本的运动控制，包括前进、后退、转向和旋转
-- **LineTracking**：演示如何使用红外传感器实现黑线循迹功能
-- **ObstacleAvoidance**：演示如何使用超声波传感器实现避障功能
+- **basic_movement**：演示基本的运动控制，包括前进、后退、转向和旋转
+- **line_tracking**：演示如何使用红外传感器实现黑线循迹功能
+- **obstacle_avoidance**：演示如何使用超声波传感器实现避障功能
 
 ## 注意事项
 
