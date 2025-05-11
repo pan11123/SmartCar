@@ -1,0 +1,28 @@
+# 关键字定义文件，用于Arduino IDE中的语法高亮
+
+# 类名 (KEYWORD1)
+SmartCar	KEYWORD1
+Motor	KEYWORD1
+UltrasonicSensor	KEYWORD1
+InfraredSensor	KEYWORD1
+Servo	KEYWORD1
+
+# 方法和函数 (KEYWORD2)
+begin	KEYWORD2
+forward	KEYWORD2
+backward	KEYWORD2
+turnLeft	KEYWORD2
+turnRight	KEYWORD2
+spinLeft	KEYWORD2
+spinRight	KEYWORD2
+stop	KEYWORD2
+getDistance	KEYWORD2
+trackLine	KEYWORD2
+avoidObstacle	KEYWORD2
+avoidObstacleWithServo	KEYWORD2
+setSpeed	KEYWORD2
+setupServo	KEYWORD2
+detectFront	KEYWORD2
+detectLeft	KEYWORD2
+detectRight	KEYWORD2
+setAngle	KEYWORD2

@@ -1,0 +1,162 @@
+/**
+ * @file SmartCar.h
+ * @brief 智能小车主类的头文件
+ * @details 整合电机控制、传感器等功能，提供统一的接口
+ */
+
+#ifndef SMART_CAR_H
+#define SMART_CAR_H
+
+#include <Arduino.h>
+#include "Motor.h"
+#include "UltrasonicSensor.h"
+#include "InfraredSensor.h"
+#include "Servo.h"
+
+/**
+ * @class SmartCar
+ * @brief 智能小车主类
+ * @details 整合了电机控制、超声波传感器、红外传感器等功能
+ */
+class SmartCar {
+public:
+    /**
+     * @brief 构造函数
+     * @param leftMotorGo 左电机前进引脚
+     * @param leftMotorBack 左电机后退引脚
+     * @param rightMotorGo 右电机前进引脚
+     * @param rightMotorBack 右电机后退引脚
+     */
+    SmartCar(uint8_t leftMotorGo, uint8_t leftMotorBack, 
+             uint8_t rightMotorGo, uint8_t rightMotorBack);
+    
+    /**
+     * @brief 初始化智能小车
+     */
+    void begin();
+    
+    /**
+     * @brief 设置超声波传感器
+     * @param trigPin 触发引脚
+     * @param echoPin 回声引脚
+     */
+    void setupUltrasonicSensor(uint8_t trigPin, uint8_t echoPin);
+    
+    /**
+     * @brief 设置红外传感器
+     * @param leftPin 左侧红外传感器引脚
+     * @param rightPin 右侧红外传感器引脚
+     */
+    void setupInfraredSensor(uint8_t leftPin, uint8_t rightPin);
+    
+    /**
+     * @brief 设置电机速度
+     * @param leftSpeed 左电机速度(0-255)
+     * @param rightSpeed 右电机速度(0-255)
+     */
+    void setSpeed(uint8_t leftSpeed, uint8_t rightSpeed);
+    
+    /**
+     * @brief 前进
+     * @param time 前进时间(单位:100ms)，0表示持续运行
+     */
+    void forward(uint16_t time = 0);
+    
+    /**
+     * @brief 后退
+     * @param time 后退时间(单位:100ms)，0表示持续运行
+     */
+    void backward(uint16_t time = 0);
+    
+    /**
+     * @brief 左转
+     * @param time 左转时间(单位:100ms)，0表示持续运行
+     */
+    void turnLeft(uint16_t time = 0);
+    
+    /**
+     * @brief 右转
+     * @param time 右转时间(单位:100ms)，0表示持续运行
+     */
+    void turnRight(uint16_t time = 0);
+    
+    /**
+     * @brief 左旋转
+     * @param time 左旋转时间(单位:100ms)，0表示持续运行
+     */
+    void spinLeft(uint16_t time = 0);
+    
+    /**
+     * @brief 右旋转
+     * @param time 右旋转时间(单位:100ms)，0表示持续运行
+     */
+    void spinRight(uint16_t time = 0);
+    
+    /**
+     * @brief 停止
+     * @param time 停止时间(单位:100ms)，0表示持续停止
+     */
+    void stop(uint16_t time = 0);
+    
+    /**
+     * @brief 获取前方距离
+     * @return 返回前方距离，单位为厘米
+     */
+    float getDistance();
+    
+    /**
+     * @brief 执行黑线循迹
+     * @return 返回循迹状态，0表示直行，1表示左转，2表示右转，3表示停止
+     */
+    int trackLine();
+    
+    /**
+     * @brief 避障行驶
+     * @param safeDistance 安全距离，单位为厘米
+     */
+    void avoidObstacle(float safeDistance = 30.0);
+    
+    /**
+     * @brief 设置舵机
+     * @param servoPin 舵机控制引脚
+     */
+    void setupServo(uint8_t servoPin);
+    
+
+    
+    /**
+     * @brief 使用舵机进行多方向避障
+     * @param safeDistance 安全距离，单位为厘米
+     */
+    void avoidObstacleWithServo(float safeDistance = 32.0);
+    
+    /**
+     * @brief 检测前方距离
+     * @return 前方距离(厘米)
+     */
+    float detectFront();
+    
+    /**
+     * @brief 检测左侧距离
+     * @return 左侧距离(厘米)
+     */
+    float detectLeft();
+    
+    /**
+     * @brief 检测右侧距离
+     * @return 右侧距离(厘米)
+     */
+    float detectRight();
+    
+private:
+    Motor* _motor;                     ///< 电机控制对象
+    UltrasonicSensor* _ultrasonicSensor; ///< 超声波传感器对象
+    InfraredSensor* _infraredSensor;    ///< 红外传感器对象
+    Servo* _servo;                     ///< 舵机控制对象
+    
+    bool _hasUltrasonicSensor;         ///< 是否配置了超声波传感器
+    bool _hasInfraredSensor;           ///< 是否配置了红外传感器
+    bool _hasServo;                    ///< 是否配置了舵机
+};
+
+#endif // SMART_CAR_H
