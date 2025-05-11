@@ -32,26 +32,13 @@ void setup() {
   // 初始化小车
   car.Begin();
   // 设置电机速度
-  car.SetSpeed(150, 150);
+  car.SetSpeed(100, 100);
 }
 
 void loop() {
   // 执行循迹功能
-  FollowLine();
-  
+  car.TrackLine();
+
   // 短暂延时
   delay(10);
-}
-
-/**
- * @brief 黑线循迹功能
- */
-void FollowLine() {
-  // 使用红外传感器状态进行循迹
-  if (car.TrackLine() == -1) {
-    // 如果TrackLine返回-1，表示未配置传感器，输出错误信息
-    Serial.println("错误：未正确配置红外传感器");
-    car.Stop(0);
-  }
-  // TrackLine函数已经实现了根据传感器状态控制小车运动的逻辑
 }

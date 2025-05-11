@@ -5,7 +5,6 @@ SmartCar	KEYWORD1
 Motor	KEYWORD1
 UltrasonicSensor	KEYWORD1
 InfraredSensor	KEYWORD1
-TrackingSensor	KEYWORD1
 Servo	KEYWORD1
 
 # 方法和函数 (KEYWORD2)
@@ -21,7 +20,6 @@ SetSpeed	KEYWORD2
 GetDistance	KEYWORD2
 ReadLeftTrackSensor	KEYWORD2
 ReadRightTrackSensor	KEYWORD2
-SetupTrackingSensors	KEYWORD2
 SetupUltrasonicSensor	KEYWORD2
 SetupInfraredSensor	KEYWORD2
 SetupServo	KEYWORD2

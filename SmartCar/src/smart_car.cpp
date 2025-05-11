@@ -120,23 +120,29 @@ int SmartCar::TrackLine() {
         return -1;
     }
     
-    // 根据红外传感器状态执行循迹
-    if (m_infraredSensor->IsBothOnLine()) {
-        // 两侧都检测到黑线，直行
+    // 获取左右传感器状态
+    // LOW表示检测到黑线，HIGH表示检测到白色区域
+    bool leftSensor = m_infraredSensor->GetLeftSensorStatus();
+    bool rightSensor = m_infraredSensor->GetRightSensorStatus();
+    
+    // 根据传感器状态执行循迹
+    // 黑线夹在两个传感器中间的逻辑：
+    // 理想情况：两侧传感器都位于白色区域（HIGH），表示黑线刚好在中间
+    if (leftSensor == HIGH && rightSensor == HIGH) {
+        // 两侧都是白色，黑线在中间，直行
         Forward(0);
         return 0;
-    } else if (m_infraredSensor->IsLeftOnLine()) {
-        // 左侧检测到黑线，右侧检测到白色区域，向右偏离，需要左转
+    } else if (leftSensor == LOW && rightSensor == HIGH) {
+        // 左侧检测到黑线，说明车偏右，向左转
         TurnLeft(0);
-        return 1;
-    } else if (m_infraredSensor->IsRightOnLine()) {
-        // 右侧检测到黑线，左侧检测到白色区域，向左偏离，需要右转
-        TurnRight(0);
         return 2;
+    } else if (leftSensor == HIGH && rightSensor == LOW) {
+        // 右侧检测到黑线，说明车偏左，向右转
+        TurnRight(0);
+        return 1;
     } else {
-        // 两侧都检测到白色区域，停止
-        Stop(0);
-        return 3;
+        Forward(0);
+        return 0;
     }
 }
 
