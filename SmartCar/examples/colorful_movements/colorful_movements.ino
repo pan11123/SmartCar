@@ -4,7 +4,7 @@
  * @details 演示如何使用SmartCar库实现各种花式动作
  */
 
-#include <SmartCar.h>
+#include <smart_car.h>
 
 // 定义引脚
 const int LEFT_MOTOR_GO = 5;      // 左电机前进引脚

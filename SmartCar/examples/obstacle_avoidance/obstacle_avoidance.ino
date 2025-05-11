@@ -4,7 +4,7 @@
  * @details 演示如何使用SmartCar库实现动态超声波避障功能，能够智能检测障碍物边缘
  */
 
-#include <SmartCar.h>
+#include <smart_car.h>
 
 // 定义引脚
 const int LEFT_MOTOR_GO = 5;      // 左电机前进引脚

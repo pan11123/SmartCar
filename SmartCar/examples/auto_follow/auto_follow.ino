@@ -4,7 +4,7 @@
  * @details 解决反应慢和间歇性行驶问题，提高响应速度
  */
 
-#include <SmartCar.h>
+#include <smart_car.h>
 
 // 定义引脚
 const int LEFT_MOTOR_GO = 5;      // 左电机前进引脚
@@ -22,13 +22,6 @@ const float TOLERANCE = 3.0;          // 允许误差范围(厘米)
 const int MAX_SPEED = 220;            // 最大速度(0-255)
 const int MIN_SPEED = 180;            // 最小速度(0-255)
 const int STOP_DELAY = 20;            // 停止延时(毫秒)
-
-// 运动状态枚举
-enum MoveState {
-  STATE_STOP,
-  STATE_FORWARD,
-  STATE_BACKWARD
-};
 
 // 全局变量
 int g_distance = 0;
