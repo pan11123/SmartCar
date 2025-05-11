@@ -14,6 +14,15 @@
 #include "Servo.h"
 #include "TrackingSensor.h"
 
+// 运动状态枚举
+enum MoveState {
+  STATE_STOP,
+  STATE_FORWARD,
+  STATE_BACKWARD,
+  STATE_TURN_LEFT,
+  STATE_TURN_RIGHT
+};
+
 /**
  * @class SmartCar
  * @brief 智能小车主类
@@ -176,6 +185,74 @@ public:
      */
     float detectRight();
     
+    /**
+     * @brief 自动跟随
+     * @param targetDistance 目标跟随距离(厘米)
+     * @param tolerance 允许误差范围(厘米)
+     * @param maxSpeed 最大速度(0-255)
+     * @param minSpeed 最小速度(0-255)
+     */
+    void autoFollow(float targetDistance = 25.0, float tolerance = 3.0, 
+                   int maxSpeed = 220, int minSpeed = 180);
+                   
+    /**
+     * @brief 执行花式动作：全速前进急停后退
+     */
+    void performFastForwardBackward();
+    
+    /**
+     * @brief 执行花式动作：间断性前进
+     * @param steps 步数
+     * @param moveTime 每步移动时间(单位:100ms)
+     * @param stopTime 每步停止时间(单位:100ms)
+     */
+    void performIntermittentForward(int steps = 5, int moveTime = 10, int stopTime = 1);
+    
+    /**
+     * @brief 执行花式动作：间断性后退
+     * @param steps 步数
+     * @param moveTime 每步移动时间(单位:100ms)
+     * @param stopTime 每步停止时间(单位:100ms)
+     */
+    void performIntermittentBackward(int steps = 5, int moveTime = 10, int stopTime = 1);
+    
+    /**
+     * @brief 执行花式动作：大弯套小弯连续左旋转
+     * @param cycles 循环次数
+     */
+    void performLeftSpinCombination(int cycles = 5);
+    
+    /**
+     * @brief 执行花式动作：大弯套小弯连续右旋转
+     * @param cycles 循环次数
+     */
+    void performRightSpinCombination(int cycles = 5);
+    
+    /**
+     * @brief 执行花式动作：间断性原地左/右转弯
+     * @param direction 方向，0为左，1为右
+     * @param cycles 循环次数
+     */
+    void performIntermittentTurn(int direction = 0, int cycles = 10);
+    
+    /**
+     * @brief 执行花式动作：走S形前进
+     * @param cycles 循环次数
+     */
+    void performSShapedMovement(int cycles = 10);
+    
+    /**
+     * @brief 执行花式动作：间断性原地左/右打转
+     * @param direction 方向，0为左，1为右
+     * @param cycles 循环次数
+     */
+    void performIntermittentSpin(int direction = 0, int cycles = 10);
+    
+    /**
+     * @brief 执行完整的花式动作表演
+     */
+    void performColorfulMovements();
+    
 private:
     /**
      * @brief 向左动态绕障
@@ -195,6 +272,15 @@ private:
      */
     bool dynamicAvoidRight(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90);
     
+    /**
+     * @brief 计算自动跟随的电机速度
+     * @param error 误差值(厘米)
+     * @param minSpeed 最小速度
+     * @param maxSpeed 最大速度
+     * @return 计算后的速度值
+     */
+    int calculateFollowSpeed(float error, int minSpeed, int maxSpeed);
+    
     Motor* _motor;                      ///< 电机控制对象
     UltrasonicSensor* _ultrasonicSensor;  ///< 超声波传感器对象
     InfraredSensor* _infraredSensor;     ///< 红外传感器对象
@@ -205,6 +291,8 @@ private:
     bool _hasInfraredSensor;            ///< 是否配置了红外传感器
     bool _hasTrackingSensor;            ///< 是否配置了循迹传感器
     bool _hasServo;                     ///< 是否配置了舵机
+    
+    MoveState _currentState;            ///< 当前运动状态
 };
 
 #endif // SMART_CAR_H

@@ -307,3 +307,312 @@ void SmartCar::avoidObstacleWithServo(float safeDistance) {
         stop(0);
     }
 }
+
+void SmartCar::dynamicAvoidObstacle(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90) {
+    // 如果没有配置超声波传感器和舵机，则直接返回
+    if (!_hasUltrasonicSensor || !_hasServo) {
+        return;
+    }
+    
+    // 检测前方距离
+    float frontDistance = detectFront();
+    
+    // 判断是否需要避障
+    if (frontDistance < safeDistance) {
+        // 停止并后退
+        stop(1);
+        backward(2);
+        stop(1);
+        
+        // 检测左右两侧距离
+        float leftDistance = detectLeft();
+        float rightDistance = detectRight();
+        
+        // 将舵机转回前方
+        detectFront();
+        
+        // 根据左右距离决定转向
+        if (leftDistance < safeDistance && rightDistance < safeDistance) {
+            // 左右两侧都有障碍物，掉头(180度)
+            spinLeft(spinTimeLeftDegree90 * 2);
+            stop(1);
+        } else if (leftDistance > rightDistance) {
+            // 左侧空间更大，向左动态绕障
+            dynamicAvoidLeft(safeDistance, spinTimeLeftDegree90, spinTimeRightDegree90);
+        } else {
+            // 右侧空间更大，向右动态绕障
+            dynamicAvoidRight(safeDistance, spinTimeLeftDegree90, spinTimeRightDegree90);
+        }
+    } else {
+        // 前方无障碍物，继续前进
+        forward(0);
+    }
+}
+
+bool SmartCar::dynamicAvoidLeft(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90) {
+    // 左侧空间更大，向左转90度
+    spinLeft(spinTimeLeftDegree90);
+    stop(1); // 确保停止并稳定姿态
+    
+    // 初始化绕行状态
+    bool obstacleCleared = false;  // 是否已绕过障碍物
+    int moveCount = 0;  // 移动计数器
+    const int MAX_MOVE_COUNT = 40;  // 最大移动次数（安全措施）
+    const int MIN_MOVE_COUNT = 1;   // 最小移动次数（确保至少前进一小段距离）
+    
+    // 前进并持续检测右侧障碍物
+    while (!obstacleCleared && moveCount < MAX_MOVE_COUNT) {
+        // 前进一小步
+        forward(5);
+        
+        // 检测右侧（原障碍物方向）距离
+        float rightSideDistance = detectRight();
+        
+        // 计数器增加
+        moveCount++;
+        
+        // 判断是否已经绕过障碍物
+        // 条件：已经前进了最小距离 + 右侧距离变大（说明已经绕过障碍物边缘）
+        if (moveCount > MIN_MOVE_COUNT && rightSideDistance > safeDistance * 1.5) {
+            obstacleCleared = true;
+        }
+        
+        // 每次检测后短暂延时
+        delay(100);
+    }
+    
+    stop(1); // 停车稳定
+    
+    if (obstacleCleared) {
+        // 已绕过障碍物，转回原来方向
+        spinRight(spinTimeRightDegree90);
+        stop(1);
+    }
+    
+    // 将舵机转回前方并继续前进
+    detectFront(); 
+    forward(0); // 持续前进
+    
+    return obstacleCleared;
+}
+
+bool SmartCar::dynamicAvoidRight(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90) {
+    // 右侧空间更大，向右转90度
+    spinRight(spinTimeRightDegree90);
+    stop(1); // 确保停止并稳定姿态
+    
+    // 初始化绕行状态
+    bool obstacleCleared = false;  // 是否已绕过障碍物
+    int moveCount = 0;  // 移动计数器
+    const int MAX_MOVE_COUNT = 40;  // 最大移动次数（安全措施）
+    const int MIN_MOVE_COUNT = 1;   // 最小移动次数（确保至少前进一小段距离）
+    
+    // 前进并持续检测左侧障碍物
+    while (!obstacleCleared && moveCount < MAX_MOVE_COUNT) {
+        // 前进一小步
+        forward(5);
+        
+        // 检测左侧（原障碍物方向）距离
+        float leftSideDistance = detectLeft();
+        
+        // 计数器增加
+        moveCount++;
+        
+        // 判断是否已经绕过障碍物
+        // 条件：已经前进了最小距离 + 左侧距离变大（说明已经绕过障碍物边缘）
+        if (moveCount > MIN_MOVE_COUNT && leftSideDistance > safeDistance * 1.5) {
+            obstacleCleared = true;
+        }
+        
+        // 每次检测后短暂延时
+        delay(100);
+    }
+    
+    stop(1); // 停车稳定
+    
+    if (obstacleCleared) {
+        // 已绕过障碍物，转回原来方向
+        spinLeft(spinTimeLeftDegree90);
+        stop(1);
+    }
+    
+    // 将舵机转回前方并继续前进
+    detectFront();
+    forward(0); // 持续前进
+    
+    return obstacleCleared;
+}
+
+// 自动跟随功能实现
+void SmartCar::autoFollow(float targetDistance, float tolerance, int maxSpeed, int minSpeed) {
+    // 如果没有配置超声波传感器，则直接返回
+    if (!_hasUltrasonicSensor) {
+        return;
+    }
+    
+    // 测量距离
+    float distance = getDistance();
+    
+    // 检查距离是否有效
+    if (distance < 2 || distance > 300) {
+        stop(0);
+        _currentState = STATE_STOP;
+        return;
+    }
+    
+    // 计算与目标距离的误差
+    float error = distance - targetDistance;
+    
+    // 决定移动方向和速度
+    if (abs(error) <= tolerance) {
+        // 在误差范围内，停止
+        if (_currentState != STATE_STOP) {
+            stop(0);
+            _currentState = STATE_STOP;
+            delay(20); // 短暂延时确保完全停止
+        }
+    } 
+    else if (error > 0) {
+        // 目标太远，前进
+        if (_currentState != STATE_FORWARD) {
+            // 计算速度 - 距离越远速度越大
+            int speed = calculateFollowSpeed(error, minSpeed, maxSpeed);
+            setSpeed(speed, speed);
+            
+            // 前进并记录状态
+            forward(0);
+            _currentState = STATE_FORWARD;
+        }
+    } 
+    else {
+        // 目标太近，后退
+        if (_currentState != STATE_BACKWARD) {
+            // 计算速度 - 距离偏差越大速度越大
+            int speed = calculateFollowSpeed(abs(error), minSpeed, maxSpeed);
+            setSpeed(speed, speed);
+            
+            // 后退并记录状态
+            backward(0);
+            _currentState = STATE_BACKWARD;
+        }
+    }
+}
+
+// 计算跟随速度
+int SmartCar::calculateFollowSpeed(float error, int minSpeed, int maxSpeed) {
+    // 使用平方根函数可以使小误差时有更小的速度增量，大误差时有更大的速度增量
+    int speed = minSpeed + sqrt(error) * 10;
+    
+    // 限制在最小和最大速度范围内
+    if (speed > maxSpeed) speed = maxSpeed;
+    if (speed < minSpeed) speed = minSpeed;
+    
+    return speed;
+}
+
+// 花式动作：全速前进急停后退
+void SmartCar::performFastForwardBackward() {
+    forward(10);
+    backward(10);
+    stop(5);
+}
+
+// 花式动作：间断性前进
+void SmartCar::performIntermittentForward(int steps, int moveTime, int stopTime) {
+    for (int i = 0; i < steps; i++) {
+        forward(moveTime);
+        stop(stopTime);
+    }
+}
+
+// 花式动作：间断性后退
+void SmartCar::performIntermittentBackward(int steps, int moveTime, int stopTime) {
+    for (int i = 0; i < steps; i++) {
+        backward(moveTime);
+        stop(stopTime);
+    }
+}
+
+// 花式动作：大弯套小弯连续左旋转
+void SmartCar::performLeftSpinCombination(int cycles) {
+    for (int i = 0; i < cycles; i++) {
+        turnLeft(10);
+        spinLeft(5);
+    }
+}
+
+// 花式动作：大弯套小弯连续右旋转
+void SmartCar::performRightSpinCombination(int cycles) {
+    for (int i = 0; i < cycles; i++) {
+        turnRight(10);
+        spinRight(5);
+    }
+}
+
+// 花式动作：间断性原地左/右转弯
+void SmartCar::performIntermittentTurn(int direction, int cycles) {
+    for (int i = 0; i < cycles; i++) {
+        if (direction == 0) {
+            turnLeft(1);
+        } else {
+            turnRight(1);
+        }
+        stop(1);
+    }
+}
+
+// 花式动作：走S形前进
+void SmartCar::performSShapedMovement(int cycles) {
+    for (int i = 0; i < cycles; i++) {
+        turnLeft(3);
+        turnRight(3);
+    }
+}
+
+// 花式动作：间断性原地左/右打转
+void SmartCar::performIntermittentSpin(int direction, int cycles) {
+    for (int i = 0; i < cycles; i++) {
+        if (direction == 0) {
+            spinLeft(3);
+        } else {
+            spinRight(3);
+        }
+        stop(3);
+    }
+}
+
+// 执行完整的花式动作表演
+void SmartCar::performColorfulMovements() {
+    // 全速前进急停后退
+    performFastForwardBackward();
+    
+    // 小车间断性前进5步
+    performIntermittentForward();
+    
+    // 小车间断性后退5步
+    performIntermittentBackward();
+    
+    // 大弯套小弯连续左旋转
+    performLeftSpinCombination();
+    
+    // 大弯套小弯连续右旋转
+    performRightSpinCombination();
+    
+    // 间断性原地右转弯
+    performIntermittentTurn(1);
+    
+    // 间断性原地左转弯
+    performIntermittentTurn(0);
+    
+    // 走S形前进
+    performSShapedMovement();
+    
+    // 间断性原地左打转
+    performIntermittentSpin(0);
+    
+    // 间断性原地右打转
+    performIntermittentSpin(1);
+    
+    // 完成后停止
+    stop(0);
+}

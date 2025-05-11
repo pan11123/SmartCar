@@ -26,6 +26,7 @@ setupUltrasonicSensor	KEYWORD2
 setupInfraredSensor	KEYWORD2
 setupServo	KEYWORD2
 avoidObstacle	KEYWORD2
+dynamicAvoidObstacle	KEYWORD2
 trackLine	KEYWORD2
 detectFront	KEYWORD2
 detectLeft	KEYWORD2
