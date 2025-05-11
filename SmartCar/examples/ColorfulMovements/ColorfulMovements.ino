@@ -21,10 +21,10 @@ void setup() {
   Serial.println("SmartCar花式动作示例");
   
   // 初始化小车
-  car.begin();
+  car.Begin();
   
   // 设置电机速度
-  car.setSpeed(200, 200);
+  car.SetSpeed(200, 200);
   
   // 等待2秒后开始
   delay(2000);
@@ -32,7 +32,7 @@ void setup() {
 
 void loop() {
   // 使用SmartCar库中的花式动作表演功能
-  car.performColorfulMovements();
+  car.PerformColorfulMovements();
   
   // 完成一个循环后等待5秒
   delay(5000);

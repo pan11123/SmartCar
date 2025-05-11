@@ -12,7 +12,17 @@
 - **多方向避障**：通过舵机控制超声波传感器检测前方、左侧和右侧障碍物，智能决策行驶方向
 
 - **高度可配置**：可根据需要灵活配置各种传感器和功能
-- **代码复用**：遵循腾讯C++代码规范，提高代码复用度
+- **代码复用**：遵循现代C++代码规范，提高代码复用度
+
+## 编码规范
+
+本库采用以下命名规范：
+- 文件命名：小写+下划线，如 smart_car.h
+- 类名：大写开头驼峰式，如 SmartCar
+- 函数/方法：大写开头驼峰式，如 GetDistance()
+- 成员变量：前缀m_，如 m_leftPin
+- 全局常量：全大写+下划线，如 MAX_SPEED
+- 局部变量：小写+下划线，如 left_sensor
 
 ## 库结构
 
@@ -23,16 +33,18 @@ SmartCar/
 │   ├── LineTracking/        # 黑线循迹示例
 │   └── ObstacleAvoidance/   # 超声波避障示例
 ├── src/                     # 库源代码目录
-│   ├── Motor.h              # 电机控制类头文件
-│   ├── Motor.cpp            # 电机控制类实现文件
-│   ├── UltrasonicSensor.h   # 超声波传感器类头文件
-│   ├── UltrasonicSensor.cpp # 超声波传感器类实现文件
-│   ├── InfraredSensor.h     # 红外传感器类头文件
-│   ├── InfraredSensor.cpp   # 红外传感器类实现文件
-│   ├── Servo.h              # 舵机控制类头文件
-│   ├── Servo.cpp            # 舵机控制类实现文件
-│   ├── SmartCar.h           # 智能小车主类头文件
-│   └── SmartCar.cpp         # 智能小车主类实现文件
+│   ├── motor.h              # 电机控制类头文件
+│   ├── motor.cpp            # 电机控制类实现文件
+│   ├── ultrasonic_sensor.h   # 超声波传感器类头文件
+│   ├── ultrasonic_sensor.cpp # 超声波传感器类实现文件
+│   ├── infrared_sensor.h     # 红外传感器类头文件
+│   ├── infrared_sensor.cpp   # 红外传感器类实现文件
+│   ├── servo.h              # 舵机控制类头文件
+│   ├── servo.cpp            # 舵机控制类实现文件
+│   ├── tracking_sensor.h     # 循迹传感器类头文件
+│   ├── tracking_sensor.cpp   # 循迹传感器类实现文件
+│   ├── smart_car.h           # 智能小车主类头文件
+│   └── smart_car.cpp         # 智能小车主类实现文件
 ├── keywords.txt             # 关键字定义文件
 ├── library.properties       # 库描述文件
 └── README.md                # 说明文档
@@ -62,24 +74,24 @@ SmartCar car(LEFT_MOTOR_GO, LEFT_MOTOR_BACK, RIGHT_MOTOR_GO, RIGHT_MOTOR_BACK);
 
 void setup() {
   // 初始化小车
-  car.begin();
+  car.Begin();
   
   // 设置电机速度
-  car.setSpeed(200, 200);
+  car.SetSpeed(200, 200);
 }
 
 void loop() {
   // 前进1秒
-  car.forward(10);
+  car.Forward(10);
   
   // 停止0.5秒
-  car.stop(5);
+  car.Stop(5);
   
   // 后退1秒
-  car.backward(10);
+  car.Backward(10);
   
   // 停止0.5秒
-  car.stop(5);
+  car.Stop(5);
 }
 ```
 
@@ -87,16 +99,16 @@ void loop() {
 
 ```cpp
 // 设置超声波传感器
-car.setupUltrasonicSensor(TRIG_PIN, ECHO_PIN);
+car.SetupUltrasonicSensor(TRIG_PIN, ECHO_PIN);
 
 // 设置红外传感器
-car.setupInfraredSensor(LEFT_IR_PIN, RIGHT_IR_PIN);
+car.SetupInfraredSensor(LEFT_IR_PIN, RIGHT_IR_PIN);
 
 // 获取前方距离
-float distance = car.getDistance();
+float distance = car.GetDistance();
 
 // 执行黑线循迹
-int trackStatus = car.trackLine();
+int track_status = car.TrackLine();
 ```
 
 ## 类说明

@@ -1,5 +1,5 @@
 /**
- * @file UltrasonicSensor.h
+ * @file ultrasonic_sensor.h
  * @brief 超声波传感器类的头文件
  * @details 提供超声波测距相关功能
  */
@@ -29,26 +29,26 @@ public:
     /**
      * @brief 初始化超声波传感器
      */
-    void begin();
+    void Begin();
     
     /**
      * @brief 测量距离
      * @return 返回测量的距离，单位为厘米
      */
-    float getDistance();
+    float GetDistance();
     
     /**
      * @brief 判断是否在有效测量范围内
      * @param distance 距离值
      * @return 如果在有效范围内返回true，否则返回false
      */
-    bool isValidRange(float distance);
+    bool IsValidRange(float distance);
     
 private:
-    uint8_t _trigPin; ///< 触发引脚
-    uint8_t _echoPin; ///< 回声引脚
-    float _minRange;  ///< 最小有效测量范围(厘米)
-    float _maxRange;  ///< 最大有效测量范围(厘米)
+    uint8_t m_trigPin; ///< 触发引脚
+    uint8_t m_echoPin; ///< 回声引脚
+    float m_minRange;  ///< 最小有效测量范围(厘米)
+    float m_maxRange;  ///< 最大有效测量范围(厘米)
 };
 
 #endif // ULTRASONIC_SENSOR_H

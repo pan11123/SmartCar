@@ -1,177 +1,177 @@
 /**
- * @file SmartCar.cpp
+ * @file smart_car.cpp
  * @brief 智能小车主类的实现文件
  */
 
-#include "SmartCar.h"
+#include "smart_car.h"
 
 SmartCar::SmartCar(uint8_t leftMotorGo, uint8_t leftMotorBack, 
                    uint8_t rightMotorGo, uint8_t rightMotorBack)
-    : _hasUltrasonicSensor(false), _hasInfraredSensor(false), _hasTrackingSensor(false), _hasServo(false) {
+    : m_hasUltrasonicSensor(false), m_hasInfraredSensor(false), m_hasTrackingSensor(false), m_hasServo(false) {
     // 创建电机控制对象
-    _motor = new Motor(leftMotorGo, leftMotorBack, rightMotorGo, rightMotorBack);
+    m_motor = new Motor(leftMotorGo, leftMotorBack, rightMotorGo, rightMotorBack);
 }
 
-void SmartCar::begin() {
+void SmartCar::Begin() {
     // 初始化电机
-    _motor->begin();
+    m_motor->Begin();
     
     // 如果配置了超声波传感器，则初始化
-    if (_hasUltrasonicSensor) {
-        _ultrasonicSensor->begin();
+    if (m_hasUltrasonicSensor) {
+        m_ultrasonicSensor->Begin();
     }
     
     // 如果配置了红外传感器，则初始化
-    if (_hasInfraredSensor) {
-        _infraredSensor->begin();
+    if (m_hasInfraredSensor) {
+        m_infraredSensor->Begin();
     }
     
     // 如果配置了循迹传感器，则初始化
-    if (_hasTrackingSensor) {
-        // 循迹传感器已在setupTrackingSensors中初始化
+    if (m_hasTrackingSensor) {
+        // 循迹传感器已在SetupTrackingSensors中初始化
     }
     
     // 如果配置了舵机，则初始化
-    if (_hasServo) {
-        _servo->begin();
+    if (m_hasServo) {
+        m_servo->Begin();
     }
 }
 
-void SmartCar::setupUltrasonicSensor(uint8_t trigPin, uint8_t echoPin) {
+void SmartCar::SetupUltrasonicSensor(uint8_t trigPin, uint8_t echoPin) {
     // 创建超声波传感器对象
-    _ultrasonicSensor = new UltrasonicSensor(trigPin, echoPin);
-    _hasUltrasonicSensor = true;
+    m_ultrasonicSensor = new UltrasonicSensor(trigPin, echoPin);
+    m_hasUltrasonicSensor = true;
 }
 
-void SmartCar::setupInfraredSensor(uint8_t leftPin, uint8_t rightPin) {
+void SmartCar::SetupInfraredSensor(uint8_t leftPin, uint8_t rightPin) {
     // 创建红外传感器对象
-    _infraredSensor = new InfraredSensor(leftPin, rightPin);
-    _hasInfraredSensor = true;
+    m_infraredSensor = new InfraredSensor(leftPin, rightPin);
+    m_hasInfraredSensor = true;
 }
 
-void SmartCar::setupTrackingSensors(uint8_t leftPin, uint8_t rightPin) {
+void SmartCar::SetupTrackingSensors(uint8_t leftPin, uint8_t rightPin) {
     // 创建循迹传感器对象
-    _trackingSensor = new TrackingSensor();
-    _trackingSensor->begin(leftPin, rightPin);
-    _hasTrackingSensor = true;
+    m_trackingSensor = new TrackingSensor();
+    m_trackingSensor->Begin(leftPin, rightPin);
+    m_hasTrackingSensor = true;
 }
 
-void SmartCar::setSpeed(uint8_t leftSpeed, uint8_t rightSpeed) {
+void SmartCar::SetSpeed(uint8_t leftSpeed, uint8_t rightSpeed) {
     // 设置电机速度
-    _motor->setSpeed(leftSpeed, rightSpeed);
+    m_motor->SetSpeed(leftSpeed, rightSpeed);
 }
 
-void SmartCar::forward(uint16_t time) {
+void SmartCar::Forward(uint16_t time) {
     // 前进
-    _motor->forward(time);
+    m_motor->Forward(time);
 }
 
-void SmartCar::backward(uint16_t time) {
+void SmartCar::Backward(uint16_t time) {
     // 后退
-    _motor->backward(time);
+    m_motor->Backward(time);
 }
 
-void SmartCar::turnLeft(uint16_t time) {
+void SmartCar::TurnLeft(uint16_t time) {
     // 左转
-    _motor->turnLeft(time);
+    m_motor->TurnLeft(time);
 }
 
-void SmartCar::turnRight(uint16_t time) {
+void SmartCar::TurnRight(uint16_t time) {
     // 右转
-    _motor->turnRight(time);
+    m_motor->TurnRight(time);
 }
 
-void SmartCar::spinLeft(uint16_t time) {
+void SmartCar::SpinLeft(uint16_t time) {
     // 左旋转
-    _motor->spinLeft(time);
+    m_motor->SpinLeft(time);
 }
 
-void SmartCar::spinRight(uint16_t time) {
+void SmartCar::SpinRight(uint16_t time) {
     // 右旋转
-    _motor->spinRight(time);
+    m_motor->SpinRight(time);
 }
 
-void SmartCar::stop(uint16_t time) {
+void SmartCar::Stop(uint16_t time) {
     // 停止
-    _motor->stop(time);
+    m_motor->Stop(time);
 }
 
-float SmartCar::getDistance() {
+float SmartCar::GetDistance() {
     // 如果没有配置超声波传感器，则返回-1
-    if (!_hasUltrasonicSensor) {
+    if (!m_hasUltrasonicSensor) {
         return -1.0;
     }
     
     // 获取距离
-    return _ultrasonicSensor->getDistance();
+    return m_ultrasonicSensor->GetDistance();
 }
 
-bool SmartCar::readLeftTrackSensor() {
+bool SmartCar::ReadLeftTrackSensor() {
     // 如果没有配置循迹传感器，则返回HIGH（表示未检测到黑线）
-    if (!_hasTrackingSensor) {
+    if (!m_hasTrackingSensor) {
         return HIGH;
     }
     
     // 读取左侧循迹传感器状态
-    return _trackingSensor->readLeft();
+    return m_trackingSensor->ReadLeft();
 }
 
-bool SmartCar::readRightTrackSensor() {
+bool SmartCar::ReadRightTrackSensor() {
     // 如果没有配置循迹传感器，则返回HIGH（表示未检测到黑线）
-    if (!_hasTrackingSensor) {
+    if (!m_hasTrackingSensor) {
         return HIGH;
     }
     
     // 读取右侧循迹传感器状态
-    return _trackingSensor->readRight();
+    return m_trackingSensor->ReadRight();
 }
 
-int SmartCar::trackLine() {
+int SmartCar::TrackLine() {
     // 先检查是否使用专用循迹传感器
-    if (_hasTrackingSensor) {
+    if (m_hasTrackingSensor) {
         // 读取循迹传感器状态
-        bool leftSensor = readLeftTrackSensor();
-        bool rightSensor = readRightTrackSensor();
+        bool leftSensor = ReadLeftTrackSensor();
+        bool rightSensor = ReadRightTrackSensor();
         
         // 根据传感器状态进行控制
         // 有信号为LOW (黑线), 无信号为HIGH (白色区域)
         if (leftSensor == LOW && rightSensor == LOW) {
             // 两个传感器都在黑线上，直行
-            forward(0);
+            Forward(0);
             return 0;
         } else if (leftSensor == HIGH && rightSensor == LOW) {
             // 左传感器在白色区域，右传感器在黑线上，车偏右，需向左转
-            turnLeft(0);
+            TurnLeft(0);
             return 1;
         } else if (leftSensor == LOW && rightSensor == HIGH) {
             // 左传感器在黑线上，右传感器在白色区域，车偏左，需向右转
-            turnRight(0);
+            TurnRight(0);
             return 2;
         } else {
             // 两个传感器都在白色区域，停止
-            stop(0);
+            Stop(0);
             return 3;
         }
     }
     
     // 如果没有配置专用循迹传感器，则尝试使用红外传感器
-    if (_hasInfraredSensor) {
+    if (m_hasInfraredSensor) {
         // 根据红外传感器状态执行循迹
-        if (_infraredSensor->isBothOnLine()) {
+        if (m_infraredSensor->IsBothOnLine()) {
             // 两侧都检测到黑线，直行
-            forward(0);
+            Forward(0);
             return 0;
-        } else if (_infraredSensor->isLeftOnLine()) {
+        } else if (m_infraredSensor->IsLeftOnLine()) {
             // 左侧检测到黑线，右侧检测到白色区域，向右偏离，需要左转
-            turnLeft(0);
+            TurnLeft(0);
             return 1;
-        } else if (_infraredSensor->isRightOnLine()) {
+        } else if (m_infraredSensor->IsRightOnLine()) {
             // 右侧检测到黑线，左侧检测到白色区域，向左偏离，需要右转
-            turnRight(0);
+            TurnRight(0);
             return 2;
         } else {
             // 两侧都检测到白色区域，停止
-            stop(0);
+            Stop(0);
             return 3;
         }
     }
@@ -180,179 +180,179 @@ int SmartCar::trackLine() {
     return -1;
 }
 
-void SmartCar::setupServo(uint8_t servoPin) {
+void SmartCar::SetupServo(uint8_t servoPin) {
     // 创建舵机控制对象
-    _servo = new Servo(servoPin);
-    _hasServo = true;
+    m_servo = new Servo(servoPin);
+    m_hasServo = true;
 }
 
-float SmartCar::detectFront() {
+float SmartCar::DetectFront() {
     // 如果没有配置舵机或超声波传感器，则直接返回-1
-    if (!_hasServo || !_hasUltrasonicSensor) {
+    if (!m_hasServo || !m_hasUltrasonicSensor) {
         return -1.0;
     }
     
     // 将舵机转到90度(前方)
-    _servo->setAngle(90, 5);
+    m_servo->SetAngle(90, 5);
     
     // 获取距离
-    return getDistance();
+    return GetDistance();
 }
 
-float SmartCar::detectLeft() {
+float SmartCar::DetectLeft() {
     // 如果没有配置舵机或超声波传感器，则直接返回-1
-    if (!_hasServo || !_hasUltrasonicSensor) {
+    if (!m_hasServo || !m_hasUltrasonicSensor) {
         return -1.0;
     }
     
     // 将舵机转到175度(左侧)
-    _servo->setAngle(175, 15);
+    m_servo->SetAngle(175, 15);
     
     // 获取距离
-    return getDistance();
+    return GetDistance();
 }
 
-float SmartCar::detectRight() {
+float SmartCar::DetectRight() {
     // 如果没有配置舵机或超声波传感器，则直接返回-1
-    if (!_hasServo || !_hasUltrasonicSensor) {
+    if (!m_hasServo || !m_hasUltrasonicSensor) {
         return -1.0;
     }
     
     // 将舵机转到0度(右侧)
-    _servo->setAngle(0, 15);
+    m_servo->SetAngle(0, 15);
     
     // 获取距离
-    return getDistance();
+    return GetDistance();
 }
 
-void SmartCar::avoidObstacle(float safeDistance) {
+void SmartCar::AvoidObstacle(float safeDistance) {
     // 如果配置了舵机，则使用多方向避障
-    if (_hasServo) {
-        avoidObstacleWithServo(safeDistance);
+    if (m_hasServo) {
+        AvoidObstacleWithServo(safeDistance);
         return;
     }
     
     // 如果没有配置超声波传感器，则直接返回
-    if (!_hasUltrasonicSensor) {
+    if (!m_hasUltrasonicSensor) {
         return;
     }
     
     // 获取前方距离
-    float distance = getDistance();
+    float distance = GetDistance();
     
     // 判断是否在有效测量范围内
-    if (_ultrasonicSensor->isValidRange(distance)) {
+    if (m_ultrasonicSensor->IsValidRange(distance)) {
         // 如果距离小于安全距离，则停止并后退
         if (distance < safeDistance) {
-            stop(0);
-            backward(5);
+            Stop(0);
+            Backward(5);
             
             // 随机选择左转或右转
             if (random(2) == 0) {
-                spinLeft(10);
+                SpinLeft(10);
             } else {
-                spinRight(10);
+                SpinRight(10);
             }
         } else {
             // 如果距离大于安全距离，则继续前进
-            forward(0);
+            Forward(0);
         }
     } else {
         // 如果不在有效测量范围内，则停止
-        stop(0);
+        Stop(0);
     }
 }
 
-void SmartCar::avoidObstacleWithServo(float safeDistance) {
+void SmartCar::AvoidObstacleWithServo(float safeDistance) {
     // 如果没有配置舵机或超声波传感器，则直接返回
-    if (!_hasServo || !_hasUltrasonicSensor) {
+    if (!m_hasServo || !m_hasUltrasonicSensor) {
         return;
     }
     
     // 检测前方距离
-    float frontDistance = detectFront();
+    float frontDistance = DetectFront();
     
     // 判断是否在有效测量范围内
-    if (_ultrasonicSensor->isValidRange(frontDistance)) {
+    if (m_ultrasonicSensor->IsValidRange(frontDistance)) {
         // 如果前方距离小于安全距离，则执行避障
         if (frontDistance < safeDistance) {
             // 后退减速
-            backward(2);
-            stop(2);
+            Backward(2);
+            Stop(2);
             
             // 检测左右两侧距离
-            float leftDistance = detectLeft();
+            float leftDistance = DetectLeft();
             
-            float rightDistance = detectRight();
+            float rightDistance = DetectRight();
             
             // 根据左右两侧距离决定转向
             if ((leftDistance < 35) && (rightDistance < 35)) {
                 // 左右两侧都有障碍物，掉头
-                spinLeft(7);
+                SpinLeft(7);
             } else if (leftDistance > rightDistance) {
                 // 左侧空间更大，向左转
-                turnLeft(3);
-                stop(1);
+                TurnLeft(3);
+                Stop(1);
             } else {
                 // 右侧空间更大，向右转
-                turnRight(3);
-                stop(1);
+                TurnRight(3);
+                Stop(1);
             }
         } else {
             // 如果前方距离大于安全距离，则继续前进
-            forward(0);
+            Forward(0);
         }
     } else {
         // 如果不在有效测量范围内，则停止
-        stop(0);
+        Stop(0);
     }
 }
 
-void SmartCar::dynamicAvoidObstacle(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90) {
+void SmartCar::DynamicAvoidObstacle(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90) {
     // 如果没有配置超声波传感器和舵机，则直接返回
-    if (!_hasUltrasonicSensor || !_hasServo) {
+    if (!m_hasUltrasonicSensor || !m_hasServo) {
         return;
     }
     
     // 检测前方距离
-    float frontDistance = detectFront();
+    float frontDistance = DetectFront();
     
     // 判断是否需要避障
     if (frontDistance < safeDistance) {
         // 停止并后退
-        stop(1);
-        backward(2);
-        stop(1);
+        Stop(1);
+        Backward(2);
+        Stop(1);
         
         // 检测左右两侧距离
-        float leftDistance = detectLeft();
-        float rightDistance = detectRight();
+        float leftDistance = DetectLeft();
+        float rightDistance = DetectRight();
         
         // 将舵机转回前方
-        detectFront();
+        DetectFront();
         
         // 根据左右距离决定转向
         if (leftDistance < safeDistance && rightDistance < safeDistance) {
             // 左右两侧都有障碍物，掉头(180度)
-            spinLeft(spinTimeLeftDegree90 * 2);
-            stop(1);
+            SpinLeft(spinTimeLeftDegree90 * 2);
+            Stop(1);
         } else if (leftDistance > rightDistance) {
             // 左侧空间更大，向左动态绕障
-            dynamicAvoidLeft(safeDistance, spinTimeLeftDegree90, spinTimeRightDegree90);
+            DynamicAvoidLeft(safeDistance, spinTimeLeftDegree90, spinTimeRightDegree90);
         } else {
             // 右侧空间更大，向右动态绕障
-            dynamicAvoidRight(safeDistance, spinTimeLeftDegree90, spinTimeRightDegree90);
+            DynamicAvoidRight(safeDistance, spinTimeLeftDegree90, spinTimeRightDegree90);
         }
     } else {
         // 前方无障碍物，继续前进
-        forward(0);
+        Forward(0);
     }
 }
 
-bool SmartCar::dynamicAvoidLeft(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90) {
+bool SmartCar::DynamicAvoidLeft(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90) {
     // 左侧空间更大，向左转90度
-    spinLeft(spinTimeLeftDegree90);
-    stop(1); // 确保停止并稳定姿态
+    SpinLeft(spinTimeLeftDegree90);
+    Stop(1); // 确保停止并稳定姿态
     
     // 初始化绕行状态
     bool obstacleCleared = false;  // 是否已绕过障碍物
@@ -363,10 +363,10 @@ bool SmartCar::dynamicAvoidLeft(float safeDistance, float spinTimeLeftDegree90, 
     // 前进并持续检测右侧障碍物
     while (!obstacleCleared && moveCount < MAX_MOVE_COUNT) {
         // 前进一小步
-        forward(5);
+        Forward(5);
         
         // 检测右侧（原障碍物方向）距离
-        float rightSideDistance = detectRight();
+        float rightSideDistance = DetectRight();
         
         // 计数器增加
         moveCount++;
@@ -381,25 +381,25 @@ bool SmartCar::dynamicAvoidLeft(float safeDistance, float spinTimeLeftDegree90, 
         delay(100);
     }
     
-    stop(1); // 停车稳定
+    Stop(1); // 停车稳定
     
     if (obstacleCleared) {
         // 已绕过障碍物，转回原来方向
-        spinRight(spinTimeRightDegree90);
-        stop(1);
+        SpinRight(spinTimeRightDegree90);
+        Stop(1);
     }
     
     // 将舵机转回前方并继续前进
-    detectFront(); 
-    forward(0); // 持续前进
+    DetectFront(); 
+    Forward(0); // 持续前进
     
     return obstacleCleared;
 }
 
-bool SmartCar::dynamicAvoidRight(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90) {
+bool SmartCar::DynamicAvoidRight(float safeDistance, float spinTimeLeftDegree90, float spinTimeRightDegree90) {
     // 右侧空间更大，向右转90度
-    spinRight(spinTimeRightDegree90);
-    stop(1); // 确保停止并稳定姿态
+    SpinRight(spinTimeRightDegree90);
+    Stop(1); // 确保停止并稳定姿态
     
     // 初始化绕行状态
     bool obstacleCleared = false;  // 是否已绕过障碍物
@@ -410,10 +410,10 @@ bool SmartCar::dynamicAvoidRight(float safeDistance, float spinTimeLeftDegree90,
     // 前进并持续检测左侧障碍物
     while (!obstacleCleared && moveCount < MAX_MOVE_COUNT) {
         // 前进一小步
-        forward(5);
+        Forward(5);
         
         // 检测左侧（原障碍物方向）距离
-        float leftSideDistance = detectLeft();
+        float leftSideDistance = DetectLeft();
         
         // 计数器增加
         moveCount++;
@@ -428,35 +428,35 @@ bool SmartCar::dynamicAvoidRight(float safeDistance, float spinTimeLeftDegree90,
         delay(100);
     }
     
-    stop(1); // 停车稳定
+    Stop(1); // 停车稳定
     
     if (obstacleCleared) {
         // 已绕过障碍物，转回原来方向
-        spinLeft(spinTimeLeftDegree90);
-        stop(1);
+        SpinLeft(spinTimeLeftDegree90);
+        Stop(1);
     }
     
     // 将舵机转回前方并继续前进
-    detectFront();
-    forward(0); // 持续前进
+    DetectFront();
+    Forward(0); // 持续前进
     
     return obstacleCleared;
 }
 
 // 自动跟随功能实现
-void SmartCar::autoFollow(float targetDistance, float tolerance, int maxSpeed, int minSpeed) {
+void SmartCar::AutoFollow(float targetDistance, float tolerance, int maxSpeed, int minSpeed) {
     // 如果没有配置超声波传感器，则直接返回
-    if (!_hasUltrasonicSensor) {
+    if (!m_hasUltrasonicSensor) {
         return;
     }
     
     // 测量距离
-    float distance = getDistance();
+    float distance = GetDistance();
     
     // 检查距离是否有效
     if (distance < 2 || distance > 300) {
-        stop(0);
-        _currentState = STATE_STOP;
+        Stop(0);
+        m_currentState = STATE_STOP;
         return;
     }
     
@@ -466,40 +466,40 @@ void SmartCar::autoFollow(float targetDistance, float tolerance, int maxSpeed, i
     // 决定移动方向和速度
     if (abs(error) <= tolerance) {
         // 在误差范围内，停止
-        if (_currentState != STATE_STOP) {
-            stop(0);
-            _currentState = STATE_STOP;
+        if (m_currentState != STATE_STOP) {
+            Stop(0);
+            m_currentState = STATE_STOP;
             delay(20); // 短暂延时确保完全停止
         }
     } 
     else if (error > 0) {
         // 目标太远，前进
-        if (_currentState != STATE_FORWARD) {
+        if (m_currentState != STATE_FORWARD) {
             // 计算速度 - 距离越远速度越大
-            int speed = calculateFollowSpeed(error, minSpeed, maxSpeed);
-            setSpeed(speed, speed);
+            int speed = CalculateFollowSpeed(error, minSpeed, maxSpeed);
+            SetSpeed(speed, speed);
             
             // 前进并记录状态
-            forward(0);
-            _currentState = STATE_FORWARD;
+            Forward(0);
+            m_currentState = STATE_FORWARD;
         }
     } 
     else {
         // 目标太近，后退
-        if (_currentState != STATE_BACKWARD) {
+        if (m_currentState != STATE_BACKWARD) {
             // 计算速度 - 距离偏差越大速度越大
-            int speed = calculateFollowSpeed(abs(error), minSpeed, maxSpeed);
-            setSpeed(speed, speed);
+            int speed = CalculateFollowSpeed(abs(error), minSpeed, maxSpeed);
+            SetSpeed(speed, speed);
             
             // 后退并记录状态
-            backward(0);
-            _currentState = STATE_BACKWARD;
+            Backward(0);
+            m_currentState = STATE_BACKWARD;
         }
     }
 }
 
 // 计算跟随速度
-int SmartCar::calculateFollowSpeed(float error, int minSpeed, int maxSpeed) {
+int SmartCar::CalculateFollowSpeed(float error, int minSpeed, int maxSpeed) {
     // 使用平方根函数可以使小误差时有更小的速度增量，大误差时有更大的速度增量
     int speed = minSpeed + sqrt(error) * 10;
     
@@ -511,108 +511,108 @@ int SmartCar::calculateFollowSpeed(float error, int minSpeed, int maxSpeed) {
 }
 
 // 花式动作：全速前进急停后退
-void SmartCar::performFastForwardBackward() {
-    forward(10);
-    backward(10);
-    stop(5);
+void SmartCar::PerformFastForwardBackward() {
+    Forward(10);
+    Backward(10);
+    Stop(5);
 }
 
 // 花式动作：间断性前进
-void SmartCar::performIntermittentForward(int steps, int moveTime, int stopTime) {
+void SmartCar::PerformIntermittentForward(int steps, int moveTime, int stopTime) {
     for (int i = 0; i < steps; i++) {
-        forward(moveTime);
-        stop(stopTime);
+        Forward(moveTime);
+        Stop(stopTime);
     }
 }
 
 // 花式动作：间断性后退
-void SmartCar::performIntermittentBackward(int steps, int moveTime, int stopTime) {
+void SmartCar::PerformIntermittentBackward(int steps, int moveTime, int stopTime) {
     for (int i = 0; i < steps; i++) {
-        backward(moveTime);
-        stop(stopTime);
+        Backward(moveTime);
+        Stop(stopTime);
     }
 }
 
 // 花式动作：大弯套小弯连续左旋转
-void SmartCar::performLeftSpinCombination(int cycles) {
+void SmartCar::PerformLeftSpinCombination(int cycles) {
     for (int i = 0; i < cycles; i++) {
-        turnLeft(10);
-        spinLeft(5);
+        TurnLeft(10);
+        SpinLeft(5);
     }
 }
 
 // 花式动作：大弯套小弯连续右旋转
-void SmartCar::performRightSpinCombination(int cycles) {
+void SmartCar::PerformRightSpinCombination(int cycles) {
     for (int i = 0; i < cycles; i++) {
-        turnRight(10);
-        spinRight(5);
+        TurnRight(10);
+        SpinRight(5);
     }
 }
 
 // 花式动作：间断性原地左/右转弯
-void SmartCar::performIntermittentTurn(int direction, int cycles) {
+void SmartCar::PerformIntermittentTurn(int direction, int cycles) {
     for (int i = 0; i < cycles; i++) {
         if (direction == 0) {
-            turnLeft(1);
+            TurnLeft(1);
         } else {
-            turnRight(1);
+            TurnRight(1);
         }
-        stop(1);
+        Stop(1);
     }
 }
 
 // 花式动作：走S形前进
-void SmartCar::performSShapedMovement(int cycles) {
+void SmartCar::PerformSShapedMovement(int cycles) {
     for (int i = 0; i < cycles; i++) {
-        turnLeft(3);
-        turnRight(3);
+        TurnLeft(3);
+        TurnRight(3);
     }
 }
 
 // 花式动作：间断性原地左/右打转
-void SmartCar::performIntermittentSpin(int direction, int cycles) {
+void SmartCar::PerformIntermittentSpin(int direction, int cycles) {
     for (int i = 0; i < cycles; i++) {
         if (direction == 0) {
-            spinLeft(3);
+            SpinLeft(3);
         } else {
-            spinRight(3);
+            SpinRight(3);
         }
-        stop(3);
+        Stop(3);
     }
 }
 
 // 执行完整的花式动作表演
-void SmartCar::performColorfulMovements() {
+void SmartCar::PerformColorfulMovements() {
     // 全速前进急停后退
-    performFastForwardBackward();
+    PerformFastForwardBackward();
     
     // 小车间断性前进5步
-    performIntermittentForward();
+    PerformIntermittentForward();
     
     // 小车间断性后退5步
-    performIntermittentBackward();
+    PerformIntermittentBackward();
     
     // 大弯套小弯连续左旋转
-    performLeftSpinCombination();
+    PerformLeftSpinCombination();
     
     // 大弯套小弯连续右旋转
-    performRightSpinCombination();
+    PerformRightSpinCombination();
     
     // 间断性原地右转弯
-    performIntermittentTurn(1);
+    PerformIntermittentTurn(1);
     
     // 间断性原地左转弯
-    performIntermittentTurn(0);
+    PerformIntermittentTurn(0);
     
     // 走S形前进
-    performSShapedMovement();
+    PerformSShapedMovement();
     
     // 间断性原地左打转
-    performIntermittentSpin(0);
+    PerformIntermittentSpin(0);
     
     // 间断性原地右打转
-    performIntermittentSpin(1);
+    PerformIntermittentSpin(1);
     
     // 完成后停止
-    stop(0);
+    Stop(0);
 }

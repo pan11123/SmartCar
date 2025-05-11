@@ -1,48 +1,48 @@
 /**
- * @file InfraredSensor.cpp
+ * @file infrared_sensor.cpp
  * @brief 红外传感器类的实现文件
  */
 
-#include "InfraredSensor.h"
+#include "infrared_sensor.h"
 
 InfraredSensor::InfraredSensor(uint8_t leftPin, uint8_t rightPin)
-    : _leftPin(leftPin), _rightPin(rightPin) {
+    : m_leftPin(leftPin), m_rightPin(rightPin) {
 }
 
-void InfraredSensor::begin() {
+void InfraredSensor::Begin() {
     // 初始化红外传感器引脚为输入模式
-    pinMode(_leftPin, INPUT);
-    pinMode(_rightPin, INPUT);
+    pinMode(m_leftPin, INPUT);
+    pinMode(m_rightPin, INPUT);
 }
 
-int InfraredSensor::getLeftSensorStatus() {
+int InfraredSensor::GetLeftSensorStatus() {
     // 读取左侧传感器状态
-    return digitalRead(_leftPin);
+    return digitalRead(m_leftPin);
 }
 
-int InfraredSensor::getRightSensorStatus() {
+int InfraredSensor::GetRightSensorStatus() {
     // 读取右侧传感器状态
-    return digitalRead(_rightPin);
+    return digitalRead(m_rightPin);
 }
 
-bool InfraredSensor::isBothOnLine() {
+bool InfraredSensor::IsBothOnLine() {
     // 判断两侧是否都检测到黑线
     // LOW表示检测到黑线
-    return (getLeftSensorStatus() == LOW && getRightSensorStatus() == LOW);
+    return (GetLeftSensorStatus() == LOW && GetRightSensorStatus() == LOW);
 }
 
-bool InfraredSensor::isBothOffLine() {
+bool InfraredSensor::IsBothOffLine() {
     // 判断两侧是否都检测到白色区域
     // HIGH表示检测到白色区域
-    return (getLeftSensorStatus() == HIGH && getRightSensorStatus() == HIGH);
+    return (GetLeftSensorStatus() == HIGH && GetRightSensorStatus() == HIGH);
 }
 
-bool InfraredSensor::isLeftOnLine() {
+bool InfraredSensor::IsLeftOnLine() {
     // 判断左侧是否检测到黑线，右侧检测到白色区域
-    return (getLeftSensorStatus() == LOW && getRightSensorStatus() == HIGH);
+    return (GetLeftSensorStatus() == LOW && GetRightSensorStatus() == HIGH);
 }
 
-bool InfraredSensor::isRightOnLine() {
+bool InfraredSensor::IsRightOnLine() {
     // 判断右侧是否检测到黑线，左侧检测到白色区域
-    return (getLeftSensorStatus() == HIGH && getRightSensorStatus() == LOW);
+    return (GetLeftSensorStatus() == HIGH && GetRightSensorStatus() == LOW);
 }

@@ -31,104 +31,109 @@ enum MoveState {
 };
 
 // 全局变量
-int Distance = 0;
-MoveState currentState = STATE_STOP;
-unsigned long lastMeasureTime = 0;
-unsigned long lastChangeTime = 0;
+int g_distance = 0;
+MoveState g_current_state = STATE_STOP;
+unsigned long g_last_measure_time = 0;
+unsigned long g_last_change_time = 0;
 
 // 创建SmartCar对象
 SmartCar car(LEFT_MOTOR_GO, LEFT_MOTOR_BACK, RIGHT_MOTOR_GO, RIGHT_MOTOR_BACK);
+
+// 函数声明
+void MeasureDistance();
+void UpdateMovement();
+int CalculateSpeed(float error);
+void StopMoving();
 
 void setup() {
   // 初始化串口
   Serial.begin(9600);
    
   // 首先设置传感器
-  car.setupUltrasonicSensor(TRIG_PIN, ECHO_PIN);
+  car.SetupUltrasonicSensor(TRIG_PIN, ECHO_PIN);
   
   // 然后初始化小车
-  car.begin();
+  car.Begin();
   
   // 设置较高的初始速度以减少启动延迟
-  car.setSpeed(MAX_SPEED, MAX_SPEED);
-
+  car.SetSpeed(MAX_SPEED, MAX_SPEED);
 }
 
 void loop() {
   // 测量距离 - 尽量减少不必要的测量以提高响应速度
-  unsigned long currentTime = millis();
-  if (currentTime - lastMeasureTime >= 50) { // 每50ms测量一次
-    measureDistance();
-    lastMeasureTime = currentTime;
+  unsigned long current_time = millis();
+  if (current_time - g_last_measure_time >= 50) { // 每50ms测量一次
+    MeasureDistance();
+    g_last_measure_time = current_time;
     
     // 根据距离调整行为
-    updateMovement();
+    UpdateMovement();
   }
 }
 
 // 测量距离
-void measureDistance() {
-  Distance = car.getDistance();
+void MeasureDistance() {
+  g_distance = car.GetDistance();
 }
 
 // 更新移动状态
-void updateMovement() {
+void UpdateMovement() {
   // 检查距离是否有效
-  if (Distance < 2 || Distance > 300) {
-    stopMoving();
+  if (g_distance < 2 || g_distance > 300) {
+    StopMoving();
     Serial.println("距离无效，停止");
     return;
   }
   
   // 计算与目标距离的误差
-  float error = Distance - TARGET_DISTANCE;
+  float error = g_distance - TARGET_DISTANCE;
   
   // 决定移动方向和速度
   if (abs(error) <= TOLERANCE) {
     // 在误差范围内，停止
-    if (currentState != STATE_STOP) {
-      stopMoving();
+    if (g_current_state != STATE_STOP) {
+      StopMoving();
     }
   } 
   else if (error > 0) {
     // 目标太远，前进
-    if (currentState != STATE_FORWARD) {
+    if (g_current_state != STATE_FORWARD) {
       // 状态变化时有声音提示
       unsigned long now = millis();
-      if (now - lastChangeTime > 500) {
-        lastChangeTime = now;
+      if (now - g_last_change_time > 500) {
+        g_last_change_time = now;
       }
       
       // 计算速度 - 距离越远速度越大
-      int speed = calculateSpeed(error);
-      car.setSpeed(speed, speed);
+      int speed = CalculateSpeed(error);
+      car.SetSpeed(speed, speed);
       
       // 前进并记录状态
-      car.forward(0);
-      currentState = STATE_FORWARD;
+      car.Forward(0);
+      g_current_state = STATE_FORWARD;
     }
   } 
   else {
     // 目标太近，后退
-    if (currentState != STATE_BACKWARD) {
+    if (g_current_state != STATE_BACKWARD) {
       unsigned long now = millis();
-      if (now - lastChangeTime > 500) {
-        lastChangeTime = now;
+      if (now - g_last_change_time > 500) {
+        g_last_change_time = now;
       }
       
       // 计算速度 - 距离偏差越大速度越大
-      int speed = calculateSpeed(abs(error));
-      car.setSpeed(speed, speed);
+      int speed = CalculateSpeed(abs(error));
+      car.SetSpeed(speed, speed);
       
       // 后退并记录状态
-      car.backward(0);
-      currentState = STATE_BACKWARD;
+      car.Backward(0);
+      g_current_state = STATE_BACKWARD;
     }
   }
 }
 
 // 计算电机速度
-int calculateSpeed(float error) {
+int CalculateSpeed(float error) {
   // 使用平方根函数可以使小误差时有更小的速度增量，大误差时有更大的速度增量
   int speed = MIN_SPEED + sqrt(error) * 10;
   
@@ -140,8 +145,8 @@ int calculateSpeed(float error) {
 }
 
 // 停止移动
-void stopMoving() {
-  car.stop(0);
-  currentState = STATE_STOP;
+void StopMoving() {
+  car.Stop(0);
+  g_current_state = STATE_STOP;
   delay(STOP_DELAY); // 短暂延时确保完全停止
 }

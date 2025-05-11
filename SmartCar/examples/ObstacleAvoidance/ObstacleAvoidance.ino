@@ -36,20 +36,20 @@ void setup() {
   Serial.println("SmartCar动态超声波避障示例");
   
   // 设置超声波传感器
-  car.setupUltrasonicSensor(TRIG_PIN, ECHO_PIN);
+  car.SetupUltrasonicSensor(TRIG_PIN, ECHO_PIN);
   // 设置舵机
-  car.setupServo(SERVO_PIN);
+  car.SetupServo(SERVO_PIN);
   
   // 初始化小车
-  car.begin();
+  car.Begin();
   
   // 设置电机速度
-  car.setSpeed(180, 145);
+  car.SetSpeed(180, 145);
 }
 
 void loop() {
   // 使用动态避障功能
-  car.dynamicAvoidObstacle(SAFE_DISTANCE, SPIN_TIME_90_DEGREE_LEFT, SPIN_TIME_90_DEGREE_RIGHT);
+  car.DynamicAvoidObstacle(SAFE_DISTANCE, SPIN_TIME_90_DEGREE_LEFT, SPIN_TIME_90_DEGREE_RIGHT);
   
   // 短暂延时
   delay(100);

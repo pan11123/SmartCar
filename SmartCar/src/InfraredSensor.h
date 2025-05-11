@@ -1,5 +1,5 @@
 /**
- * @file InfraredSensor.h
+ * @file infrared_sensor.h
  * @brief 红外传感器类的头文件
  * @details 提供红外循迹相关功能
  */
@@ -26,47 +26,47 @@ public:
     /**
      * @brief 初始化红外传感器
      */
-    void begin();
+    void Begin();
     
     /**
      * @brief 获取左侧传感器状态
      * @return 返回传感器状态，LOW表示检测到黑线，HIGH表示检测到白色区域
      */
-    int getLeftSensorStatus();
+    int GetLeftSensorStatus();
     
     /**
      * @brief 获取右侧传感器状态
      * @return 返回传感器状态，LOW表示检测到黑线，HIGH表示检测到白色区域
      */
-    int getRightSensorStatus();
+    int GetRightSensorStatus();
     
     /**
      * @brief 判断是否两侧都检测到黑线
      * @return 如果两侧都检测到黑线返回true，否则返回false
      */
-    bool isBothOnLine();
+    bool IsBothOnLine();
     
     /**
      * @brief 判断是否两侧都检测到白色区域
      * @return 如果两侧都检测到白色区域返回true，否则返回false
      */
-    bool isBothOffLine();
+    bool IsBothOffLine();
     
     /**
      * @brief 判断是否左侧检测到黑线，右侧检测到白色区域
      * @return 如果左侧检测到黑线，右侧检测到白色区域返回true，否则返回false
      */
-    bool isLeftOnLine();
+    bool IsLeftOnLine();
     
     /**
      * @brief 判断是否右侧检测到黑线，左侧检测到白色区域
      * @return 如果右侧检测到黑线，左侧检测到白色区域返回true，否则返回false
      */
-    bool isRightOnLine();
+    bool IsRightOnLine();
     
 private:
-    uint8_t _leftPin;  ///< 左侧红外传感器引脚
-    uint8_t _rightPin; ///< 右侧红外传感器引脚
+    uint8_t m_leftPin;  ///< 左侧红外传感器引脚
+    uint8_t m_rightPin; ///< 右侧红外传感器引脚
 };
 
 #endif // INFRARED_SENSOR_H
